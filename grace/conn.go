@@ -12,6 +12,7 @@ func (c graceConn) Close() (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
+			fmt.Println("unexpected error:", err)
 		}
 	}()
 	c.server.wg.Done()

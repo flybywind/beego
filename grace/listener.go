@@ -1,6 +1,7 @@
 package grace
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"syscall"
@@ -32,6 +33,7 @@ func (gl *graceListener) Accept() (c net.Conn, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
+			fmt.Println("unexpected error:", err)
 		}
 	}()
 	tc, err := gl.Listener.(*net.TCPListener).AcceptTCP()

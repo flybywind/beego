@@ -40,7 +40,7 @@ func NewApp() *App {
 }
 
 // Run beego application.
-func (app *App) Run() {
+func (app *App) Run() (err error) {
 	addr := HttpAddr
 
 	if HttpPort != 0 {
@@ -48,10 +48,9 @@ func (app *App) Run() {
 	}
 
 	var (
-		err error
-		l   net.Listener
+		l net.Listener
 	)
-	endRunning := make(chan bool, 1)
+	endRunning := make(chan error, 1)
 
 	if UseFcgi {
 		if UseStdIo {
@@ -95,8 +94,8 @@ func (app *App) Run() {
 					if err != nil {
 						BeeLogger.Critical("ListenAndServeTLS: ", err, fmt.Sprintf("%d", os.Getpid()))
 						time.Sleep(100 * time.Microsecond)
-						endRunning <- true
 					}
+					endRunning <- err
 				}()
 			}
 			if EnableHttpListen {
@@ -110,8 +109,8 @@ func (app *App) Run() {
 					if err != nil {
 						BeeLogger.Critical("ListenAndServe: ", err, fmt.Sprintf("%d", os.Getpid()))
 						time.Sleep(100 * time.Microsecond)
-						endRunning <- true
 					}
+					endRunning <- err
 				}()
 			}
 		} else {
@@ -131,8 +130,8 @@ func (app *App) Run() {
 					if err != nil {
 						BeeLogger.Critical("ListenAndServeTLS: ", err)
 						time.Sleep(100 * time.Microsecond)
-						endRunning <- true
 					}
+					endRunning <- err
 				}()
 			}
 
@@ -145,28 +144,27 @@ func (app *App) Run() {
 						if err != nil {
 							BeeLogger.Critical("ListenAndServe: ", err)
 							time.Sleep(100 * time.Microsecond)
-							endRunning <- true
+							endRunning <- err
 							return
 						}
 						err = app.Server.Serve(ln)
 						if err != nil {
 							BeeLogger.Critical("ListenAndServe: ", err)
 							time.Sleep(100 * time.Microsecond)
-							endRunning <- true
-							return
 						}
+						endRunning <- err
 					} else {
 						err := app.Server.ListenAndServe()
 						if err != nil {
 							BeeLogger.Critical("ListenAndServe: ", err)
 							time.Sleep(100 * time.Microsecond)
-							endRunning <- true
 						}
+						endRunning <- err
 					}
 				}()
 			}
 		}
 
 	}
-	<-endRunning
+	return <-endRunning
 }

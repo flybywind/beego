@@ -126,6 +126,12 @@ func (ctx *Context) XsrfToken(key string, expire int64) string {
 	}
 	return ctx._xsrf_token
 }
+func (ctx *Context) XsrfTokenRefresh(key string, expire int64) string {
+	token := string(utils.RandomCreateBytes(32))
+	ctx.SetSecureCookie(key, "_xsrf", token, expire)
+	ctx._xsrf_token = token
+	return ctx._xsrf_token
+}
 
 // CheckXsrfCookie checks xsrf token in this request is valid or not.
 // the token can provided in request header "X-Xsrftoken" and "X-CsrfToken"

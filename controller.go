@@ -205,7 +205,8 @@ func (c *Controller) RenderBytes() ([]byte, error) {
 		}
 		newbytes := bytes.NewBufferString("")
 		if _, ok := BeeTemplates[c.TplNames]; !ok {
-			panic("can't find templatefile in the path:" + c.TplNames)
+			c.TplNames = "error_no_tmpl.html"
+			c.Layout = c.TplNames
 		}
 		err := BeeTemplates[c.TplNames].ExecuteTemplate(newbytes, c.TplNames, c.Data)
 		if err != nil {
@@ -250,7 +251,7 @@ func (c *Controller) RenderBytes() ([]byte, error) {
 		}
 		ibytes := bytes.NewBufferString("")
 		if _, ok := BeeTemplates[c.TplNames]; !ok {
-			panic("can't find templatefile in the path:" + c.TplNames)
+			c.TplNames = "error_no_tmpl.html"
 		}
 		err := BeeTemplates[c.TplNames].ExecuteTemplate(ibytes, c.TplNames, c.Data)
 		if err != nil {
